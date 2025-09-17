@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>briian — Inscription preview</title>
+    <meta name="description"
+        content="Inscrivez-vous à la preview de briian, l’app qui simplifie la gestion de votre restaurant." />
+    <meta property="og:title" content="briian — Inscription preview" />
+    <meta property="og:description"
+        content="Réservations, tables, commandes, additions : tout en un. Inscrivez-vous à la preview." />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#000000" />
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+
+    <!-- Inter (proche Onest), tu peux changer si besoin -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'Arial'],
+                        brand: ['Onest', 'Inter', 'ui-sans-serif', 'system-ui', 'Arial']
+                    },
+                    colors: {
+                        brand: {
+                            50: '#e9f9ef',
+                            100: '#d2f3df',
+                            500: '#22c55e',
+                            600: '#16a34a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+
+    <!-- Google Analytics 4 — remplace G-XXXXXXXXXX -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX'); // <-- remplace par ton ID GA4
+    </script>
+
+    <style>
+        /* Lissage police pour un rendu net */
+        html {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+
+<body class="bg-black text-white">
+    <main class="min-h-screen flex items-center justify-center px-4">
+        <section class="w-full max-w-lg">
+            <!-- Logo + nom -->
+            <div class="flex items-center justify-center gap-6">
+                <!-- Logo plus grand -->
+                <img src="img/logo.svg" alt="Logo briian" class="h-20 w-20 rounded-2xl shadow-black/40 shadow-lg">
+                <span class="font-brand text-3xl font-semibold tracking-tight">briian</span>
+            </div>
+
+            <!-- Label -->
+            <p class="mt-6 text-center text-sm text-zinc-400">
+                Inscris toi pour être dans les premiers à tester Briian gratuitement.
+            </p>
+
+            <!-- Formulaire -->
+            <!-- Formulaire (empilé) -->
+            <form id="signupForm" class="mt-3 flex flex-col items-center gap-3 w-full" novalidate>
+                <label for="email" class="sr-only">Adresse email</label>
+                <input id="email" name="email" type="email" inputmode="email" autocomplete="email" required
+                    placeholder="votre@email.com"
+                    class="w-full rounded-2xl bg-zinc-900/80 ring-1 ring-white/10 focus:ring-2 focus:ring-brand-500 outline-none px-4 py-3 text-base placeholder:text-zinc-500 transition max-w-xl"
+                    aria-describedby="emailHelp" />
+
+                <!-- Bouton en dessous -->
+                <button id="submitBtn" type="submit"
+                    class="w-full sm:w-1/2 max-w-xl rounded-2xl px-5 py-3 text-sm font-semibold bg-white text-black hover:bg-zinc-200 active:scale-[0.99] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:ring-white">
+                    S’inscrire
+                </button>
+
+
+                <!-- Messages dynamiques -->
+                <div class="h-6 mt-1 text-center text-sm" aria-live="polite">
+                    <span id="msg" class="hidden"></span>
+                </div>
+            </form>
+
+            <!-- Footer discret -->
+            <div class="mt-10 text-center">
+                <p class="text-[11px] text-zinc-500">
+                    © <span id="year"></span> briian app — by
+                    <a href="mailto:arnaud@treenity.dev"
+                        class="underline decoration-zinc-500/40 hover:decoration-zinc-300 hover:text-zinc-300"
+                        aria-label="Contacter Treenity par email">
+                        Treenity
+                    </a>
+                </p>
+
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // -------- Config --------
+        // Si tu as un backend, mets l’URL ici (ex: '/api/subscribe' ou une URL Formspree).
+        const SUBMIT_ENDPOINT = ''; // laisser vide pour "mode démo" (enregistre localStorage)
+
+        // -------- Helpers UI --------
+        const form = document.getElementById('signupForm');
+        const emailInput = document.getElementById('email');
+        const submitBtn = document.getElementById('submitBtn');
+        const msg = document.getElementById('msg');
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        function showMessage(text, type = 'info') {
+            msg.classList.remove('hidden');
+            msg.textContent = text;
+            if (type === 'success') {
+                msg.className = 'text-emerald-400';
+            } else if (type === 'error') {
+                msg.className = 'text-red-400';
+            } else {
+                msg.className = 'text-zinc-400';
+            }
+        }
+
+        function isValidEmail(email) {
+            // Regex simple et robuste
+            return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+        }
+
+        async function submitEmail(email) {
+            if (!SUBMIT_ENDPOINT) {
+                // Mode démo : stockage local, simulateur de latence
+                const key = 'briian_preview_emails';
+                const saved = JSON.parse(localStorage.getItem(key) || '[]');
+                if (!saved.includes(email)) saved.push(email);
+                localStorage.setItem(key, JSON.stringify(saved));
+                await new Promise(r => setTimeout(r, 600));
+                return { ok: true };
+            }
+
+            // Envoi JSON vers ton backend
+            const res = await fetch(SUBMIT_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            return { ok: res.ok, status: res.status };
+        }
+
+        // -------- Events --------
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = emailInput.value.trim();
+
+            if (!isValidEmail(email)) {
+                showMessage('Veuillez saisir une adresse email valide.', 'error');
+                emailInput.focus();
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Envoi…';
+            showMessage('Traitement en cours…');
+
+            try {
+                const result = await submitEmail(email);
+                if (result.ok) {
+                    showMessage('Merci ! Vous êtes inscrit à la preview ✅', 'success');
+                    form.reset();
+                    // GA4 event
+                    if (typeof gtag === 'function') {
+                        gtag('event', 'signup_preview', { method: 'email_form' });
+                    }
+                } else {
+                    showMessage("Une erreur est survenue. Réessayez plus tard.", 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showMessage("Impossible d’envoyer l’inscription. Vérifiez votre connexion.", 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'S’inscrire';
+            }
+        });
+
+        // UX : Enter sur le champ => clic bouton (pour iOS)
+        emailInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                submitBtn.click();
+            }
+        });
+    </script>
+</body>
+
+</html>
