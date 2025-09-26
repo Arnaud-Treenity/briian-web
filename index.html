@@ -4,12 +4,12 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>briian — Inscription preview</title>
+    <title>briian — Événement 02/10 à 18h</title>
     <meta name="description"
-        content="Inscrivez-vous à la preview de briian, l’app qui simplifie la gestion de votre restaurant." />
-    <meta property="og:title" content="briian — Inscription preview" />
+        content="Participez à l’événement du 02/10 à 18h. Laissez votre email pour recevoir le lien." />
+    <meta property="og:title" content="briian — Événement 02/10 à 18h" />
     <meta property="og:description"
-        content="Réservations, tables, commandes, additions : tout en un. Inscrivez-vous à la preview." />
+        content="Participez à l’événement du 02/10 à 18h. Inscrivez votre email pour recevoir le lien." />
     <meta property="og:type" content="website" />
     <meta name="theme-color" content="#000000" />
 
@@ -77,7 +77,7 @@
 
             <!-- Label -->
             <p class="mt-6 text-center text-sm text-zinc-400">
-                Inscris toi pour être dans les premiers à tester Briian gratuitement.
+                Participe à l’événement du 02/10 à 18h — laisse ton email pour recevoir le lien. Tu recevras le lien par mail le jour du meeting.
             </p>
 
             <!-- Formulaire -->
@@ -92,7 +92,7 @@
                 <!-- Bouton en dessous -->
                 <button id="submitBtn" type="submit"
                     class="w-full sm:w-1/2 max-w-xl rounded-2xl px-5 py-3 text-sm font-semibold bg-white text-black hover:bg-zinc-200 active:scale-[0.99] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:ring-white">
-                    S’inscrire
+                    Je participe
                 </button>
 
 
@@ -184,7 +184,7 @@
             try {
                 const result = await submitEmail(email);
                 if (result.ok) {
-                    showMessage('Merci ! Vous êtes inscrit à la preview ✅', 'success');
+                    showMessage('Merci ! Tu es inscrit(e) à l’événement du 02/10 à 18h ✅', 'success');
                     form.reset();
                     // GTM event
                     if (typeof dataLayer !== 'undefined') {
@@ -201,7 +201,7 @@
                 showMessage("Impossible d’envoyer l’inscription. Vérifiez votre connexion.", 'error');
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'S’inscrire';
+                submitBtn.textContent = 'Je participe';
             }
         });
 
